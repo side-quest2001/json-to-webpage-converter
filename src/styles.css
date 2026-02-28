@@ -1,0 +1,161 @@
+:root {
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  color: #0f172a;
+  background:
+    radial-gradient(circle at top right, #dbeafe 0%, transparent 55%),
+    radial-gradient(circle at bottom left, #bfdbfe 0%, transparent 45%),
+    #f8fafc;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+#root {
+  min-height: 100vh;
+}
+
+.page {
+  width: min(1000px, 100%);
+  margin: 0 auto;
+  padding: 32px 16px 40px;
+  display: grid;
+  gap: 16px;
+}
+
+.panel {
+  background: rgba(255, 255, 255, 0.88);
+  border: 1px solid #d5dfeb;
+  border-radius: 14px;
+  box-shadow: 0 12px 28px rgba(15, 23, 42, 0.08);
+  backdrop-filter: blur(3px);
+}
+
+.hero {
+  padding: 24px;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: clamp(1.6rem, 2.5vw, 2.2rem);
+}
+
+.hero p {
+  margin: 0;
+  color: #334155;
+}
+
+.controls {
+  display: grid;
+  gap: 8px;
+  padding: 16px 20px;
+}
+
+.controls label {
+  font-size: 0.92rem;
+  color: #334155;
+  font-weight: 600;
+}
+
+.controls input {
+  border: 1px solid #bfd1e5;
+  border-radius: 10px;
+  padding: 10px 12px;
+  font-size: 0.95rem;
+}
+
+.editor {
+  padding: 18px 20px 20px;
+}
+
+.editorHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.editorHeader h2,
+.output h2 {
+  margin: 0;
+  font-size: 1.1rem;
+}
+
+textarea {
+  width: 100%;
+  min-height: 360px;
+  border-radius: 12px;
+  border: 1px solid #bfd1e5;
+  padding: 12px;
+  resize: vertical;
+  font-family: "Cascadia Code", Consolas, "Courier New", monospace;
+  font-size: 0.9rem;
+  line-height: 1.4;
+  color: #0f172a;
+}
+
+button,
+.downloadBtn {
+  border: none;
+  border-radius: 10px;
+  padding: 10px 14px;
+  background: linear-gradient(135deg, #0f766e 0%, #0369a1 100%);
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  text-decoration: none;
+  width: fit-content;
+}
+
+button:hover,
+.downloadBtn:hover {
+  filter: brightness(1.05);
+}
+
+.output {
+  padding: 18px 20px 20px;
+  display: grid;
+  gap: 10px;
+}
+
+.actionsRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.success {
+  margin: 0;
+  color: #065f46;
+  font-weight: 600;
+}
+
+.error {
+  margin: 0;
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.downloadBtn.disabled {
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.webBtn {
+  background: linear-gradient(135deg, #0b4f7d 0%, #0f766e 100%);
+}
+
+@media (max-width: 700px) {
+  .page {
+    padding: 16px 12px 24px;
+    gap: 12px;
+  }
+
+  textarea {
+    min-height: 280px;
+  }
+}
