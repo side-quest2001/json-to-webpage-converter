@@ -14,6 +14,13 @@ const PRIORITY_FIELDS = [
   "LinkedIn"
 ];
 
+const HEADER_FIELDS = {
+  name: "Name",
+  rating: "Rating",
+  role: "Current Role",
+  company: "Current Company"
+} as const;
+
 const isObject = (value: JsonValue): value is JsonObject =>
   typeof value === "object" && value !== null && !Array.isArray(value);
 
@@ -39,6 +46,38 @@ const prettifyKey = (key: string): string =>
     .replace(/\s+/g, " ")
     .trim();
 
+const normalizeKey = (key: string): string =>
+  key.toLowerCase().replace(/[^a-z0-9]/g, "");
+
+const buildKeyIndex = (candidate: JsonObject): Map<string, string> => {
+  const index = new Map<string, string>();
+  for (const key of Object.keys(candidate)) {
+    const normalized = normalizeKey(key);
+    if (!index.has(normalized)) index.set(normalized, key);
+  }
+  return index;
+};
+
+const resolveField = (
+  candidate: JsonObject,
+  index: Map<string, string>,
+  canonicalLabel: string
+): { actualKey: string; value: JsonValue | undefined } | null => {
+  if (canonicalLabel in candidate) {
+    return {
+      actualKey: canonicalLabel,
+      value: candidate[canonicalLabel]
+    };
+  }
+
+  const matchedKey = index.get(normalizeKey(canonicalLabel));
+  if (!matchedKey) return null;
+  return {
+    actualKey: matchedKey,
+    value: candidate[matchedKey]
+  };
+};
+
 const valueToText = (value: JsonValue | undefined): string => {
   if (value === undefined || value === null || value === "") return "Not provided";
   if (typeof value === "object") return JSON.stringify(value);
@@ -63,21 +102,33 @@ const renderField = (key: string, value: JsonValue | undefined): string => {
 };
 
 const renderCandidateCard = (candidate: JsonObject, index: number): string => {
-  const name = valueToText(candidate.Name as JsonValue | undefined);
-  const rating = valueToText(candidate.Rating as JsonValue | undefined);
-  const role = valueToText(candidate["Current Role"] as JsonValue | undefined);
-  const company = valueToText(candidate["Current Company"] as JsonValue | undefined);
+  const keyIndex = buildKeyIndex(candidate);
+  const usedKeys = new Set<string>();
 
-  const fieldsHtml = PRIORITY_FIELDS.filter((field) => field in candidate)
-    .map((field) => renderField(field, candidate[field]))
-    .join("");
+  const nameField = resolveField(candidate, keyIndex, HEADER_FIELDS.name);
+  const ratingField = resolveField(candidate, keyIndex, HEADER_FIELDS.rating);
+  const roleField = resolveField(candidate, keyIndex, HEADER_FIELDS.role);
+  const companyField = resolveField(candidate, keyIndex, HEADER_FIELDS.company);
+
+  if (nameField) usedKeys.add(nameField.actualKey);
+  if (ratingField) usedKeys.add(ratingField.actualKey);
+  if (roleField) usedKeys.add(roleField.actualKey);
+  if (companyField) usedKeys.add(companyField.actualKey);
+
+  const name = valueToText(nameField?.value);
+  const rating = valueToText(ratingField?.value);
+  const role = valueToText(roleField?.value);
+  const company = valueToText(companyField?.value);
+
+  const fieldsHtml = PRIORITY_FIELDS.map((field) => {
+    const resolved = resolveField(candidate, keyIndex, field);
+    if (!resolved) return "";
+    usedKeys.add(resolved.actualKey);
+    return renderField(field, resolved.value);
+  }).join("");
 
   const remainingFieldsHtml = Object.keys(candidate)
-    .filter(
-      (key) =>
-        !["Name", ...PRIORITY_FIELDS].includes(key) &&
-        candidate[key] !== undefined
-    )
+    .filter((key) => !usedKeys.has(key) && candidate[key] !== undefined)
     .map((key) => renderField(key, candidate[key]))
     .join("");
 
